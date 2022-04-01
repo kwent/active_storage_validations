@@ -63,6 +63,13 @@ class ActiveStorageValidations::Test < ActiveSupport::TestCase
     assert_equal u.errors.full_messages, ['Image regex has an invalid content type']
 
     u = User.new(name: 'John Smith')
+    u.avatar.attach(dummy_file)
+    u.image_regex.attach(bad_dummy_file)
+    u.photos.attach(io_file)
+    assert !u.valid?
+    assert_equal u.errors.full_messages, ['Image regex has an invalid content type']
+
+    u = User.new(name: 'John Smith')
     u.avatar.attach(bad_dummy_file)
     u.image_regex.attach(bad_dummy_file)
     u.photos.attach(bad_dummy_file)
@@ -401,4 +408,8 @@ end
 
 def tar_file
   { io: File.open(Rails.root.join('public', '404.html.tar')), filename: '404.html.tar', content_type: 'application/x-tar' }
+end
+
+def io_file
+  { io: StringIO.new("binary"), filename: 'dummy_file.png', content_type: 'image/png' }
 end
